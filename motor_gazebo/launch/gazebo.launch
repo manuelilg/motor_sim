@@ -1,0 +1,11 @@
+<launch>
+	<arg name="model" default="$(find motor_description)/urdf/motor.urdf"/>
+
+	<include file="$(find gazebo_ros)/launch/empty_world.launch"/>
+
+	<param name="robot_description" command="cat $(arg model)"/>
+
+	<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
+		args="-urdf -model motor -param robot_description" respawn="false" output="screen"/>
+
+</launch>

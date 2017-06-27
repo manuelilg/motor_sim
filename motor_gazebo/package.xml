@@ -1,0 +1,14 @@
+<package format="2">
+	<name>motor_gazebo</name>
+	<version>0.0.1</version>
+	<description>Launches the urdf from the motor_description package in Gazebo</description>
+	<author>Manuel Ilg</author>
+	<maintainer email="manuel.ilg@ntb.ch">Manuel Ilg</maintainer>
+	<license>BSD</license>
+
+	<buildtool_depend>catkin</buildtool_depend>
+
+	<exec_depend>gazebo_ros</exec_depend>
+	<exec_depend>urdf</exec_depend>
+
+</package>
