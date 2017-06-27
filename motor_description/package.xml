@@ -1,0 +1,17 @@
+<package format="2">
+  <name>motor_description</name>
+  <version>0.1.0</version>
+
+  <description>A simple motor</description>
+  <author email="manuel.ilg@ntb.ch">Manuel Ilg</author>
+  <maintainer email="manuel.ilg@ntb.ch">Manuel Ilg</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>urdf</build_depend>
+  <exec_depend>rviz</exec_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>urdf</exec_depend>
+
+</package>
