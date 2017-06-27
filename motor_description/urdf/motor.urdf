@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<robot name="motor">
+	
+	<link name="world"/>
+
+	<link name="base_link">
+		<visual>
+			<geometry>
+				<box size="0.1 0.1 0.01"/>
+				<origin xyz="0 0 0.005"/>
+			</geometry>
+		</visual>
+	</link>
+
+	<link name="rotor">
+		<visual>
+			<geometry>
+				<cylinder length="0.055" radius="0.009"/>
+			</geometry>
+			<origin xyz="0 0 0" rpy="0 1.570796327 0"/>
+		</visual>
+	</link>
+
+	<joint name="fixe_base" type="fixed">
+		<parent link="world"/>
+		<child link="base_link"/>
+		<origin xyz="0 0 0.005"/>
+	</joint>
+
+	<joint name="motor_axis" type="continuous">
+		<parent link="base_link"/>
+		<child link="rotor"/>
+		<axis xyz="1 0 0"/>
+		<origin xyz="0 0 0.1"/>
+	</joint>
+
+</robot>
