@@ -32,15 +32,15 @@ public:
 		if(prepareMotorAxis() == false) return;
 
 
-		update_connection_ = event::Events::ConnectWorldUpdateEnd(boost::bind(&GazeboRosMotor::OnUpdate, this));
+//		update_connection_ = event::Events::ConnectWorldUpdateEnd(boost::bind(&GazeboRosMotor::OnUpdate, this));
+		update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboRosMotor::OnUpdate, this));
 		if(!update_connection_) printf("Error no Update Connection\n");
 	}
 
 	void OnUpdate() {
 		//printf("%s\n", std::to_string(counter_++).c_str());
-		
 		if(!force_set_) {
-			//joint_->SetForce(0, 0.000053657);
+			joint_->SetForce(0, 0.00539135);
 			//link_->SetTorque(ignition::math::Vector3d  0.000053657);
 			//force_set_ = true;
 		} else {
@@ -52,6 +52,7 @@ public:
 			printf("GetForce(0): %s\n", std::to_string(force).c_str());
       printf("GetEffortLimit(0): %s\n", std::to_string(joint_->GetEffortLimit(0)).c_str());
       printf("GetVelocity(0): %s\n", std::to_string(joint_->GetVelocity(0)).c_str());
+      printf("GetAngle(0): %s\n", std::to_string(joint_->GetAngle(0).Radian()).c_str());
 			counter_ = 0;
 		}
 	}
