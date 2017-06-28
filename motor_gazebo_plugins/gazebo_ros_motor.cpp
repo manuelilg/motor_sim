@@ -37,8 +37,23 @@ public:
 	}
 
 	void OnUpdate() {
-		//printf("Hello form OnUpdate()\n");
-		joint_->SetForce(0, 0.001);
+		//printf("%s\n", std::to_string(counter_++).c_str());
+		
+		if(!force_set_) {
+			//joint_->SetForce(0, 0.000053657);
+			//link_->SetTorque(ignition::math::Vector3d  0.000053657);
+			//force_set_ = true;
+		} else {
+			joint_->SetForce(0, 0);
+		}
+
+		if(counter_++ >= 99) {
+			double force = joint_->GetForce(0);
+			printf("GetForce(0): %s\n", std::to_string(force).c_str());
+      printf("GetEffortLimit(0): %s\n", std::to_string(joint_->GetEffortLimit(0)).c_str());
+      printf("GetVelocity(0): %s\n", std::to_string(joint_->GetVelocity(0)).c_str());
+			counter_ = 0;
+		}
 	}
 
 private: 
@@ -59,13 +74,22 @@ private:
 		return true;
 	}
 
+	bool prepareRotorLink() {
+//		link_ = model_->getLink("rotor");
+//		if(!link_) printf("ERRRRRROOOOR!!!!!!!!\n");
+	} 
+
 
 private: 
 	physics::ModelPtr model_;
 	sdf::ElementPtr sdf_;
 	event::ConnectionPtr update_connection_;
 	physics::JointPtr joint_;
+	physics::LinkPtr link_;
 	std::string motor_axis_joint_name_;
+	int counter_ = 0;
+	bool force_set_ = false;
+	bool parameter_read_ = false;
 };
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboRosMotor)
