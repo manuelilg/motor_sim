@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<robot name="motor">
+	<link name="rotor">
+		<visual>
+			<geometry>
+				<cylinder length="0.055" radius="0.009"/>
+			</geometry>
+		<origin xyz="0 0 0.1" rpy="0 1.570796327 0"/>
+
+		</visual>
+	</link>
+</robot>

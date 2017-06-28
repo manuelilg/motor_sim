@@ -80,4 +80,10 @@
     <origin xyz="0 0 0.1" rpy="0 1.570796327 0"/>
   </joint>
 
+	<gazebo>
+		<plugin name="motor_gazebo_plugins" filename="libgazebo_ros_motor.so">
+			<motor_axis_joint_name>motor_axis</motor_axis_joint_name>
+		</plugin>
+	</gazebo>
+
 </robot>
