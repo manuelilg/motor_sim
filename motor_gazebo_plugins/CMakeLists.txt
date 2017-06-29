@@ -80,9 +80,9 @@ add_library(gazebo_ros_motor SHARED
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(gazebo_ros_motor
-   ${GAZEBO_LIBRARIES}
+	 ${GAZEBO_LIBRARIES}
 	 ${Boost_LIBRARIES}
- )
+)
 
 #############
 ## Install ##

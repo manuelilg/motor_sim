@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 #include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/common/common.hh>
@@ -35,9 +34,29 @@ public:
 //		update_connection_ = event::Events::ConnectWorldUpdateEnd(boost::bind(&GazeboRosMotor::OnUpdate, this));
 		update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboRosMotor::OnUpdate, this));
 		if(!update_connection_) printf("Error no Update Connection\n");
+
+		/* // Variant1
+		if(!ros::isInitialized()) {
+			int argc = 0;
+			char **argv = NULL;
+			ros::init(argc, argv,"gazebo_client", ros::init_options::NoSigintHandler);
+		}
+
+		this->rosNode.reset(new r os::NodeHandle("gazebo_client"));
+		this->rosSub_ = this->rosNode->subscribe("gazebo_test", 1000, &GazeboRosMotor::OnRosMsg, this);
+		*/
+
+		// Varinat2
+		printf("Start ROS with variant 2\n");
+		gazebo_ros_ = GazeboRosPtr(new GazeboRos(model_, sdf_, "Motor"));
+		if(!ros::isInitialized()) return;
+
+		rosSub_ = gazebo_ros_->node()->subscribe("gazebo_test", 1000, &GazeboRosMotor::OnRosMsg, this);
+
+		printf("End of Load-Function\n");
 	}
 
-	void OnUpdate() {
+/*	void OnUpdate() {
 		//printf("%s\n", std::to_string(counter_++).c_str());
 		if(!force_set_) {
 			joint_->SetForce(0, 0.00539135);
@@ -55,6 +74,16 @@ public:
       printf("GetAngle(0): %s\n", std::to_string(joint_->GetAngle(0).Radian()).c_str());
 			counter_ = 0;
 		}
+	} */
+
+	void OnUpdate() {
+		printf("OnUpdate called\n");
+		ros::spinOnce();
+		printf("OnUpdate end\n");
+	}
+
+	void OnRosMsg(const std_msgs::Float64ConstPtr &msg) {
+		printf("OnRosMsg called, Msg: %f\n", msg->data);
 	}
 
 private: 
@@ -87,6 +116,10 @@ private:
 	event::ConnectionPtr update_connection_;
 	physics::JointPtr joint_;
 	physics::LinkPtr link_;
+	std::unique_ptr<ros::NodeHandle> rosNode;
+	ros::Subscriber rosSub_;
+	GazeboRosPtr gazebo_ros_;
+//	ros::CallbackQueue rosQueue;
 	std::string motor_axis_joint_name_;
 	int counter_ = 0;
 	bool force_set_ = false;
