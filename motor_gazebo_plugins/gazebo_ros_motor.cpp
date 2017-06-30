@@ -11,6 +11,7 @@
 #include <gazebo/physics/physics.hh>
 #include <ros/ros.h>
 #include <std_msgs/Float64.h>
+#include <std_msgs/String.h>
 
 namespace gazebo
 {
@@ -35,28 +36,32 @@ public:
 		update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboRosMotor::OnUpdate, this));
 		if(!update_connection_) printf("Error no Update Connection\n");
 
-		/* // Variant1
+		// Variant1
+		printf("Start ROS with variant 1\n");
 		if(!ros::isInitialized()) {
+			printf("ros:isInitialized() -> false\n");
 			int argc = 0;
 			char **argv = NULL;
 			ros::init(argc, argv,"gazebo_client", ros::init_options::NoSigintHandler);
 		}
 
-		this->rosNode.reset(new r os::NodeHandle("gazebo_client"));
-		this->rosSub_ = this->rosNode->subscribe("gazebo_test", 1000, &GazeboRosMotor::OnRosMsg, this);
-		*/
+		this->rosNode.reset(new ros::NodeHandle("gazebo_client"));
+		this->rosSub_ = this->rosNode->subscribe("chatter", 1000, &GazeboRosMotor::OnRosMsg2, this);
+		
 
 		// Varinat2
+		/*
 		printf("Start ROS with variant 2\n");
 		gazebo_ros_ = GazeboRosPtr(new GazeboRos(model_, sdf_, "Motor"));
 		if(!ros::isInitialized()) return;
 
 		rosSub_ = gazebo_ros_->node()->subscribe("gazebo_test", 1000, &GazeboRosMotor::OnRosMsg, this);
-
+		*/
 		printf("End of Load-Function\n");
 	}
 
 /*	void OnUpdate() {
+
 		//printf("%s\n", std::to_string(counter_++).c_str());
 		if(!force_set_) {
 			joint_->SetForce(0, 0.00539135);
@@ -84,6 +89,10 @@ public:
 
 	void OnRosMsg(const std_msgs::Float64ConstPtr &msg) {
 		printf("OnRosMsg called, Msg: %f\n", msg->data);
+	}
+
+	void OnRosMsg2(const std_msgs::String::ConstPtr& msg) {
+    printf("OnRosMsg called, Msg: %s\n", msg->data.c_str());
 	}
 
 private: 
