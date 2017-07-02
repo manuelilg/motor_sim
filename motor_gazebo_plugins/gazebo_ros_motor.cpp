@@ -34,9 +34,11 @@ public:
 		if(prepareMotorAxis() == false) return;
 
 
-//		update_connection_end_ = event::Events::ConnectWorldUpdateEnd(boost::bind(&GazeboRosMotor::OnUpdate, this));
-		update_connection_begin_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboRosMotor::OnUpdate, this));
-		if(!update_connection_begin_) printf("Error no Update Connection\n");
+		update_connection_begin_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboRosMotor::OnUpdateBegin, this));
+		if(!update_connection_begin_) ROS_ERROR("Error no Update Begin Connection");
+
+		update_connection_end_ = event::Events::ConnectWorldUpdateEnd(boost::bind(&GazeboRosMotor::OnUpdateEnd, this));
+		if(!update_connection_end_) ROS_ERROR("Error no Update End Connection");
 
 
 		if(!ros::isInitialized()) {
@@ -55,17 +57,12 @@ public:
 			&this->rosQueue_);
 		rosSub_ = rosNode_->subscribe(subOps);
 
-		printf("End of Load-Function\n");
+		OnUpdateEnd();
+
+		ROS_INFO("End of Load-Function");
 	}
 
-	void OnUpdate() {
-
-		rosQueue_.clear();
-
-		std_msgs::Float64 msg;
-		msg.data = joint_->GetAngle(0).Radian();
-		rosPub_.publish(msg);
-
+	void OnUpdateBegin() {
 		while(rosQueue_.isEmpty()) {
 			usleep(50);
 			ROS_INFO("Waiting for motor_controller_node");
@@ -81,6 +78,13 @@ public:
     ROS_INFO("GetEffortLimit(0): %f", joint_->GetEffortLimit(0));
     ROS_INFO("GetVelocity(0): %f", joint_->GetVelocity(0));
     ROS_INFO("GetAngle(0): %f", joint_->GetAngle(0).Radian());
+	}
+
+	void OnUpdateEnd() {
+		std_msgs::Float64 msg;
+    msg.data = joint_->GetAngle(0).Radian();
+    rosPub_.publish(msg);
+		ROS_INFO("OnUpdateEnd called, msg:%f", msg.data);
 	}
 
 	void OnRosMsg(const std_msgs::Float64ConstPtr &msg) {
