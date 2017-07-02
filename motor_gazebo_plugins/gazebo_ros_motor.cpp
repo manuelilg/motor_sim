@@ -12,6 +12,7 @@
 #include <ros/ros.h>
 #include <std_msgs/Float64.h>
 #include <std_msgs/String.h>
+#include <ros/callback_queue.h>
 
 namespace gazebo
 {
@@ -19,7 +20,7 @@ namespace gazebo
 class GazeboRosMotor : public ModelPlugin
 {
 public:
-	GazeboRosMotor()
+	GazeboRosMotor(): force_to_set_(0.0), error_tm1(0.0), integrator(0.0), controller_i_tm1(0.0)
 	{
 		printf("Hello from the GazeboRosMotor!\n");
 	}
@@ -36,59 +37,67 @@ public:
 		update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboRosMotor::OnUpdate, this));
 		if(!update_connection_) printf("Error no Update Connection\n");
 
-		// Variant1
-		printf("Start ROS with variant 1\n");
 		if(!ros::isInitialized()) {
-			printf("ros:isInitialized() -> false\n");
-			int argc = 0;
-			char **argv = NULL;
-			ros::init(argc, argv,"gazebo_client", ros::init_options::NoSigintHandler);
+ 			ROS_FATAL_STREAM("A ROS node for Gazegbo has not been initialized, unable to load plugin.");
+ 			return;
 		}
+ 		this->rosNode_.reset(new ros::NodeHandle("gazebo_motor_plugin"));
 
-		this->rosNode.reset(new ros::NodeHandle("gazebo_client"));
-		this->rosSub_ = this->rosNode->subscribe("chatter", 1000, &GazeboRosMotor::OnRosMsg2, this);
-		
+		rosPub_ = rosNode_->advertise<std_msgs::Float64>("motor_angle", 100);
 
-		// Varinat2
-		/*
-		printf("Start ROS with variant 2\n");
-		gazebo_ros_ = GazeboRosPtr(new GazeboRos(model_, sdf_, "Motor"));
-		if(!ros::isInitialized()) return;
+		ros::SubscribeOptions subOps = ros::SubscribeOptions::create<std_msgs::Float64>(
+			"/motor_correction_variable",
+			100,
+			boost::bind(&GazeboRosMotor::OnRosMsg, this, _1),
+			ros::VoidPtr(),
+			&this->rosQueue_);
+		rosSub_ = rosNode_->subscribe(subOps);
 
-		rosSub_ = gazebo_ros_->node()->subscribe("gazebo_test", 1000, &GazeboRosMotor::OnRosMsg, this);
-		*/
 		printf("End of Load-Function\n");
 	}
 
-/*	void OnUpdate() {
+	void OnUpdate() {
 
-		//printf("%s\n", std::to_string(counter_++).c_str());
+		std_msgs::Float64 msg;
+		msg.data = joint_->GetAngle(0).Radian();
+		rosPub_.publish(msg);
+		//rosQueue_.callOne();
+		//joint_->SetForce(0, force_to_set_);
+
+		double omega_t = joint_->GetVelocity(0);
+		double error_t = 1 - omega_t;
+		double controller_p = error_t * 16.5;
+		double controller_i_t = error_t * 32.5;
+		integrator = integrator + (controller_i_t + controller_i_tm1)/2*1e-3;
+		double torque = (integrator + controller_p)*0.0163;
+
+		joint_->SetForce(0, torque);
+
+		error_tm1 = error_t;
+		controller_i_tm1 = controller_i_t;
+
+/*		//printf("%s\n", std::to_string(counter_++).c_str());
 		if(!force_set_) {
 			joint_->SetForce(0, 0.00539135);
 			//link_->SetTorque(ignition::math::Vector3d  0.000053657);
 			//force_set_ = true;
 		} else {
 			joint_->SetForce(0, 0);
-		}
+		}*/
 
-		if(counter_++ >= 99) {
-			double force = joint_->GetForce(0);
-			printf("GetForce(0): %s\n", std::to_string(force).c_str());
-      printf("GetEffortLimit(0): %s\n", std::to_string(joint_->GetEffortLimit(0)).c_str());
-      printf("GetVelocity(0): %s\n", std::to_string(joint_->GetVelocity(0)).c_str());
-      printf("GetAngle(0): %s\n", std::to_string(joint_->GetAngle(0).Radian()).c_str());
-			counter_ = 0;
-		}
-	} */
-
-	void OnUpdate() {
-		printf("OnUpdate called\n");
-		ros::spinOnce();
-		printf("OnUpdate end\n");
+		//if(counter_++ >= 99) {
+			printf("GetForce(0): %f\n", joint_->GetForce(0));
+      printf("GetEffortLimit(0): %f\n", joint_->GetEffortLimit(0));
+      printf("GetVelocity(0): %f\n", joint_->GetVelocity(0));
+      printf("GetAngle(0): %f\n", joint_->GetAngle(0).Radian());
+     // printf("Force_to_set: %f\n", force_to_set_);
+		//	counter_ = 0;
+		//}
 	}
 
 	void OnRosMsg(const std_msgs::Float64ConstPtr &msg) {
-		printf("OnRosMsg called, Msg: %f\n", msg->data);
+		force_to_set_ = msg->data;
+		printf("Callback: %f\n", msg->data);
 	}
 
 	void OnRosMsg2(const std_msgs::String::ConstPtr& msg) {
@@ -125,10 +134,16 @@ private:
 	event::ConnectionPtr update_connection_;
 	physics::JointPtr joint_;
 	physics::LinkPtr link_;
-	std::unique_ptr<ros::NodeHandle> rosNode;
+	std::unique_ptr<ros::NodeHandle> rosNode_;
 	ros::Subscriber rosSub_;
+	ros::Publisher rosPub_;
 	GazeboRosPtr gazebo_ros_;
-//	ros::CallbackQueue rosQueue;
+	ros::CallbackQueue rosQueue_;
+	double force_to_set_;
+	double error_tm1;
+	double integrator;
+	double controller_i_tm1;
+
 	std::string motor_axis_joint_name_;
 	int counter_ = 0;
 	bool force_set_ = false;

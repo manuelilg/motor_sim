@@ -71,6 +71,7 @@
     <child link="rotor"/>
     <axis xyz="0 0 1"/>
     <origin xyz="0 0 0.1" rpy="0 1.570796327 0"/>
+		<dynamics damping="2.1087e-4"/>
   </joint>
 
 	<joint name="coupling" type="fixed">
