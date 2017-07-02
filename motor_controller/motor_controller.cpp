@@ -4,7 +4,7 @@
 
 class MotorControllerNode {
  public:
-  MotorControllerNode(): phi_tm1(0.0), omega_tm1(0.0), integrator(0.0) {
+  MotorControllerNode(): phi_tm1(0.0), error_tm1(0.0), integrator(0.0) {
     ros::NodeHandle nh;
 		sub_ = nh.subscribe("gazebo_motor_plugin/motor_angle", 100, &MotorControllerNode::update, this);
 		pub_ = nh.advertise<std_msgs::Float64>("motor_correction_variable", 100);
@@ -22,9 +22,10 @@ class MotorControllerNode {
     double phi_t = msg_in->data;
 		double omega_t = (phi_t - phi_tm1)/1e-3;
 		double error_t = 1 - omega_t;
-		double con_p = error_t * 16.5;
-		double con_i = integrator + (error_t + error_tm1)/2.0 * 32.5;
-		double torque = (con_p + con_i)*km;
+		double p_term = error_t * 16.5;
+		integrator += (error_t + error_tm1)/2.0 * 1e-3;
+		double i_term = integrator * 32.5;
+		double torque = (p_term + i_term)*km;
 
 		std_msgs::Float64 msg_out;
 		msg_out.data = torque;
@@ -35,7 +36,7 @@ class MotorControllerNode {
     ROS_INFO("Force to set: %f", torque);
 
 		phi_tm1 = phi_t;
-		omega_tm1 = omega_t;
+		error_tm1 = error_t;
   }
 
 
@@ -43,7 +44,6 @@ class MotorControllerNode {
   ros::Subscriber sub_;
   ros::Publisher pub_;
 	double phi_tm1;
-	double omega_tm1;
 	double integrator;
 	double error_tm1;
 
