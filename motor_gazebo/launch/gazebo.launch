@@ -1,8 +1,11 @@
 <launch>
 	<arg name="model" default="$(find motor_description)/urdf/motor.urdf"/>
+	<arg name="paused" default="true"/>
+	<arg name="use_sim_time" default="true"/>
 
 	<include file="$(find gazebo_ros)/launch/empty_world.launch">
-		<arg name="paused" value="true"/>
+		<arg name="paused" value="$(arg paused)"/>
+		<arg name="use_sim_time" value="$(arg use_sim_time)"/>
 	</include>
 
 	<param name="robot_description" command="cat $(arg model)"/>

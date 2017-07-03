@@ -47,7 +47,7 @@ public:
 		}
  		this->rosNode_.reset(new ros::NodeHandle("gazebo_motor_plugin"));
 
-		rosPub_ = rosNode_->advertise<std_msgs::Float64>("motor_angle", 100);
+		rosPub_ = rosNode_->advertise<std_msgs::Float64>("motor_angle", 100, true);
 
 		ros::SubscribeOptions subOps = ros::SubscribeOptions::create<std_msgs::Float64>(
 			"/motor_correction_variable",
