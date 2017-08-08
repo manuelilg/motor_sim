@@ -1,13 +1,15 @@
 #include <ros/ros.h>
 #include <std_msgs/Float64.h>
+#include <sensor_msgs/JointState.h>
 
 
 class MotorControllerNode {
  public:
   MotorControllerNode(): phi_tm1(0.0), error_tm1(0.0), integrator(0.0) {
     ros::NodeHandle nh;
-		sub_ = nh.subscribe("gazebo_motor_plugin/motor_angle", 100, &MotorControllerNode::update, this);
-		pub_ = nh.advertise<std_msgs::Float64>("motor_correction_variable", 100);
+		sub_ = nh.subscribe("motor/joint_states", 1, &MotorControllerNode::update, this);
+//		pub_ = nh.advertise<std_msgs::Float64>("motor_correction_variable", 100);
+		pub_ = nh.advertise<sensor_msgs::JointState>("/motor/motor_effort", 1);
   }
 
   virtual ~MotorControllerNode() {
@@ -18,8 +20,8 @@ class MotorControllerNode {
 
   }
 
-	void update(const std_msgs::Float64::ConstPtr &msg_in) {
-    double phi_t = msg_in->data;
+	void update(const sensor_msgs::JointStateConstPtr& msg_in) {
+    double phi_t = msg_in->position[0];
 		double omega_t = (phi_t - phi_tm1)/1e-3;
 		double error_t = 1 - omega_t;
 		double p_term = error_t * 16.5;
@@ -27,8 +29,14 @@ class MotorControllerNode {
 		double i_term = integrator * 32.5;
 		double torque = (p_term + i_term)*km;
 
-		std_msgs::Float64 msg_out;
-		msg_out.data = torque;
+//		std_msgs::Float64 msg_out;
+//		msg_out.data = torque;
+		sensor_msgs::JointState msg_out;
+		msg_out.header.stamp = ros::Time::now();
+		msg_out.name.resize(1);
+		msg_out.name[0] = "motor_axis";
+		msg_out.effort.resize(1);
+		msg_out.effort[0] = torque;
 		pub_.publish(msg_out);
 
     ROS_INFO("Motor phi: %f", phi_t);
