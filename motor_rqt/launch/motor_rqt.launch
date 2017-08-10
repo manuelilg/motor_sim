@@ -14,7 +14,7 @@
 	<node name="motor_controller" pkg="motor_controller" type="motor_controller_node"/>
 
 	<node name="rqt" pkg="rqt_gui" type="rqt_gui" required="true"
-		args="--perspective-file $(find motor_rqt)/perspective/motor_v5.perspective"/> 
+		args="--perspective-file $(find motor_rqt)/perspective/motor_v6.perspective"/> 
 
 </launch>
 
