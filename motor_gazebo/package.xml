@@ -10,5 +10,6 @@
 
 	<exec_depend>gazebo_ros</exec_depend>
 	<exec_depend>urdf</exec_depend>
+	<exec_depend>gazebo_ros_joint_force</exec_depend>
 
 </package>
