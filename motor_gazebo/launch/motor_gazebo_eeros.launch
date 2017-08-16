@@ -15,4 +15,6 @@
 	<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
 		args="-urdf -model motor -param robot_description" respawn="false" output="screen"/>
 
+	<node name="initialize_control_loop" pkg="rostopic" type="rostopic" args="pub -1 /motor_sim/effort sensor_msgs/JointState '{effort:[0.0]}'" output="screen"/>
+
 </launch>
