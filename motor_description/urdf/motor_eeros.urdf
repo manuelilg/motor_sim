@@ -3,6 +3,12 @@
 	
 	<link name="world"/>
 
+	<joint name="fixe_base" type="fixed">
+		<parent link="world"/>
+		<child link="base_link"/>
+		<origin xyz="0 0 0.005"/>
+	</joint>
+
 	<link name="base_link">
 		<visual>
 			<geometry>
@@ -21,6 +27,14 @@
       <inertia ixx="1" ixy="0.0" ixz="0.0" iyy="1" iyz="0.0" izz="1"/>
     </inertial>
 	</link>
+
+	<joint name="motor_axis" type="continuous">
+    <parent link="base_link"/>
+    <child link="rotor"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0 0 0.1" rpy="0 1.570796327 0"/>
+		<dynamics damping="2.1087e-4"/>
+  </joint>
 
   <link name="rotor">
     <visual>
@@ -41,6 +55,12 @@
     </inertial>
 	</link>
 
+	<joint name="coupling" type="fixed">
+		<parent link="rotor"/>
+		<child link="flywheel"/>
+		<origin xyz="0 0 0.1"/>
+	</joint>
+
 	<link name="flywheel">
 		<visual>
 			<geometry>
@@ -60,26 +80,6 @@
     </inertial>
 	</link>
 
-	<joint name="fixe_base" type="fixed">
-		<parent link="world"/>
-		<child link="base_link"/>
-		<origin xyz="0 0 0.005"/>
-	</joint>
-
-	<joint name="motor_axis" type="continuous">
-    <parent link="base_link"/>
-    <child link="rotor"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0 0 0.1" rpy="0 1.570796327 0"/>
-		<dynamics damping="2.1087e-4"/>
-  </joint>
-
-	<joint name="coupling" type="fixed">
-		<parent link="rotor"/>
-		<child link="flywheel"/>
-		<origin xyz="0 0 0.1"/>
-	</joint>
-
 	<gazebo>
 		<plugin name="joint_force" filename="libgazebo_ros_joint_force.so">
 			<robotNamespace>/motor_sim</robotNamespace>
@@ -92,30 +92,8 @@
 		<plugin name="joint_state_publisher" filename="libgazebo_ros_joint_state_publisher.so">
 			<robotNamespace>/motor_sim</robotNamespace>
 			<jointName>motor_axis</jointName>
-			<updateRate>1100.0</updateRate> <!-- to get sure that one every sim step called -->
+			<updateRate>10000.0</updateRate> <!-- to get sure that one every sim step called, up to 10k -->
 		</plugin>
 	</gazebo>
-
-<!--	<gazebo>
-		<plugin name="motor_gazebo_plugins" filename="libgazebo_ros_motor.so">
-			<motor_axis_joint_name>motor_axis</motor_axis_joint_name>
-		</plugin>
-	</gazebo> -->
-
-<!--	<transmission name="motor_axis_trans">
-		<type>transmission_interface/SimpleTransmission</type>
-		<actuator name="$motor_axis_trans">
-			<mechanicalReduction>1</mechanicalReduction>
-		<actuator>
-		<joint name="motor_axis">
-			<hardwareInterface>EffortJointInterface</hardwareInterface>
-		</joint>
-	</transmission>
-
-	<gazebo>
-		<plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-			<robotNamespace>/</robotNamespace>
-		</plugin>
-	</gazebo> -->
 
 </robot>
