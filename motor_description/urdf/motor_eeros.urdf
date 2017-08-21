@@ -12,7 +12,7 @@
 	<link name="base_link">
 		<visual>
 			<geometry>
-				<box size="0.1 0.1 0.01"/>
+				<box size="0.2 0.1 0.01"/>
 				<origin xyz="0 0 0.01"/>
 			</geometry>
 		</visual>
@@ -30,55 +30,92 @@
 
 	<joint name="motor_axis" type="continuous">
     <parent link="base_link"/>
-    <child link="rotor"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0 0 0.1" rpy="0 1.570796327 0"/>
-		<dynamics damping="2.1087e-4"/>
+    <child link="motor"/>
+    <axis xyz="1 0 0"/>
+    <origin xyz="0.07 0 0.1" rpy="0 0 0"/>
   </joint>
 
-  <link name="rotor">
+  <link name="motor">
     <visual>
       <geometry>
         <cylinder length="0.055" radius="0.009"/>
       </geometry>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 1.57079632679489662 0"/>
     </visual>
     <collision>
       <geometry>
         <cylinder length="0.055" radius="0.009"/>
       </geometry>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 1.57079632679489662 0"/>
     </collision>
     <inertial>
       <mass value="0.13"/>
-      <inertia ixx="0.000018761" ixy="0.0" ixz="0.0" iyy="0.000018761" iyz="0.0" izz="0.00000279"/>
+      <inertia ixx="1.545e-6" ixy="0.0" ixz="0.0" iyy="9.4e-6" iyz="0.0" izz="9.4e-6"/>
     </inertial>
 	</link>
 
+	<joint name="coupling" type="continuous">
+		<parent link="motor"/>
+		<child link="flywheel"/>
+    <origin xyz="-0.09 0 0" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+  </joint>
+
+<!--
 	<joint name="coupling" type="fixed">
 		<parent link="rotor"/>
 		<child link="flywheel"/>
-		<origin xyz="0 0 0.1"/>
-	</joint>
+		<origin xyz="-0.09 0 0"/>
+	</joint> -->
 
 	<link name="flywheel">
 		<visual>
 			<geometry>
 				<cylinder length="0.006" radius="0.048"/>
 			</geometry>
-			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<origin xyz="0 0 0" rpy="0 1.57079632679489662 0"/>
 		</visual>
 		<collision>
       <geometry>
         <cylinder length="0.006" radius="0.048"/>
       </geometry>
-			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<origin xyz="0 0 0" rpy="0 1.57079632679489662 0"/>
 		</collision>
 		<inertial>
       <mass value="0.37"/>
-      <inertia ixx="0.00021423" ixy="0.0" ixz="0.0" iyy="0.00021423" iyz="0.0" izz="0.00042624"/>
+      <inertia ixx="0.00042624" ixy="0.0" ixz="0.0" iyy="0.00021423" iyz="0.0" izz="0.00021423"/>
     </inertial>
 	</link>
+
+
+  <joint name="damper_axis" type="continuous">
+    <parent link="base_link"/>
+    <child link="damper"/>
+    <axis xyz="1 0 0"/>
+    <origin xyz="-0.07 0 0.1" rpy="0 0 0"/>
+    <dynamics damping="2.1087e-4"/>
+  </joint>
+
+
+	<link name="damper">
+    <visual>
+      <geometry>
+        <cylinder length="0.055" radius="0.009"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 1.57079632679489662 0"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.055" radius="0.009"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 1.57079632679489662 0"/>
+    </collision>
+    <inertial>
+      <mass value="0.13"/>
+      <inertia ixx="1.245e-6" ixy="0.0" ixz="0.0" iyy="9.4e-6" iyz="0.0" izz="9.4e-6"/>
+    </inertial>
+  </link>
+
 
 	<gazebo>
 		<plugin name="joint_force" filename="libgazebo_ros_joint_force.so">
