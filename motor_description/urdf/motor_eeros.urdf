@@ -54,19 +54,11 @@
     </inertial>
 	</link>
 
-	<joint name="coupling" type="continuous">
+	<joint name="coupling" type="fixed">
 		<parent link="motor"/>
 		<child link="flywheel"/>
-    <origin xyz="-0.09 0 0" rpy="0 0 0"/>
-    <axis xyz="1 0 0"/>
-  </joint>
-
-<!--
-	<joint name="coupling" type="fixed">
-		<parent link="rotor"/>
-		<child link="flywheel"/>
-		<origin xyz="-0.09 0 0"/>
-	</joint> -->
+		<origin xyz="-0.09 0 0" rpy="0 0 0"/>
+	</joint>
 
 	<link name="flywheel">
 		<visual>
@@ -94,6 +86,7 @@
     <axis xyz="1 0 0"/>
     <origin xyz="-0.07 0 0.1" rpy="0 0 0"/>
     <dynamics damping="2.1087e-4"/>
+		<mimic joint="motor_axis" multiplier="1" offset="0"/>
   </joint>
 
 
@@ -116,6 +109,13 @@
     </inertial>
   </link>
 
+
+	<gazebo>
+		<joint name="coupling_2" type="fixed">
+			<parent>damper</parent>
+			<child>flywheel</child>
+		</joint>
+	</gazebo>
 
 	<gazebo>
 		<plugin name="joint_force" filename="libgazebo_ros_joint_force.so">
