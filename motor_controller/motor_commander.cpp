@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
   ros::NodeHandle nh;
 	ros::Rate loop_rate(1000);
 
-	auto pub = nh.advertise<std_msgs::Float64>("rosNodeTalker/TestTopic1", 10);
+	ros::Publisher pub = nh.advertise<std_msgs::Float64>("rosNodeTalker/TestTopic1", 10);
 
 
 	int a = 50;
