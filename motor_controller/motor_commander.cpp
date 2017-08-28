@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
 				accelerate = !accelerate;
 			}
 		} else {
-			output -= output_increment;
+			//output -= output_increment;
 			if(output<0.0) {
 				accelerate = !accelerate;
 			}
