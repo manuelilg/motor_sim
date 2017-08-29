@@ -1,5 +1,5 @@
 <launch>
-	<arg name="model" default="$(find motor_description)/urdf/motor_eeros.urdf"/>
+	<arg name="model" default="$(find motor_description)/urdf/motor.urdf"/>
 	<arg name="paused" default="true"/>
 	<arg name="use_sim_time" default="true"/>
 	<arg name="gui" default="true"/>
@@ -8,6 +8,7 @@
 		<arg name="paused" value="$(arg paused)"/>
 		<arg name="use_sim_time" value="$(arg use_sim_time)"/>
 		<arg name="gui" value="$(arg gui)"/>
+		<arg name="world_name" value="$(find motor_gazebo)/worlds/motor.world"/>
 	</include>
 
 	<param name="robot_description" command="cat $(arg model)"/>
