@@ -63,7 +63,7 @@ class MotorControllerNode {
   double integrator;
   double error_tm1;
 
-	const double km = 0.0163;
+	static const double km = 0.0163;
 };
 
 int main(int argc, char **argv) {
